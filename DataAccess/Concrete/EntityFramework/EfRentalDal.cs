@@ -17,14 +17,15 @@ namespace DataAccess.Concrete.EntityFramework
             using (ReCapContext context = new ReCapContext())
             {
                 var result = from c in context.Cars
+                             from u in context.Users
                              join r in context.Rentals on c.CarId equals r.CarId
                              join b in context.Brands on c.BrandId equals b.BrandId
                              join cl in context.Colors on c.ColorID equals cl.ColorID
-                             join u in context.Users on r.CustomerId equals u.UserId
+                             join uo in context.UserOperationClaims on u.Id equals uo.UserId
 
                              select new RentalDetailsDto
                              {
-                                 RentalId = r.UserId,
+                                 RentalId = r.Id,
                                  CarRentDate = r.RentDate,
                                  CarReturnDate = r.ReturnDate,
 
@@ -37,7 +38,7 @@ namespace DataAccess.Concrete.EntityFramework
 
                                  ColorName = cl.ColorName,
 
-                                 CustomerId = u.UserId,
+                                 CustomerId = r.CustomerId,
                                  FirstName = u.FirstName,
                                  LastName = u.LastName
                              };

@@ -13,118 +13,177 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Business.Concrete
 {
-    public class CarImageManager : ICarImageService
-    {
-        ICarImageDal _carImageDal;
-
-        public CarImageManager(ICarImageDal carImageDal)
+        public class CarImageManager : ICarImageService
         {
-            _carImageDal = carImageDal;
-        }
+            ICarImageDal _carImageDal;
+            ICarService _carService;
 
-        [ValidationAspect(typeof(CarImageValidator))]
-        public IResult Add(IFormFile file, CarImage carImage)
-        {
-            IResult result = BusinessRules.Run(CheckIfNumberOfPictures(carImage.CarId));
-            if (result != null)
+            private string logoPath = @"\Images\default.jpg";
+
+            public CarImageManager(ICarImageDal carImageDal, ICarService carService)
             {
-                return result;
+                _carImageDal = carImageDal;
+                _carService = carService;
             }
-            carImage.ImagePath = new FileHelper().Add(file);
+
+            public IResult Add(IFormFile file, CarImage carImage)
+            {
+            //var countOfImage = _carImageDal.GetAll(i => i.CarId == carImage.CarId).Count();
+            //if (countOfImage > 4)
+            //{
+            //    return new ErrorResult(Messages.CarImageLimited);
+            //}
+
+            //var carIsExists = _carService.GetById(carImage.CarId);
+            //if (!carIsExists.Success)
+            //{
+            //    return new ErrorResult(Messages.NotFound);
+            //}
+
+            //var imageResult = FileHelper.Add(file);
+            //if (!imageResult.Success)
+            //{
+            //    return new ErrorResult(imageResult.Message);
+            //}
+
+
+            carImage.ImagePath = FileHelper.Add(file);
             carImage.Date = DateTime.Now;
+            carImage.Id = default;
             _carImageDal.Add(carImage);
-
             return new SuccessResult(Messages.Added);
-        }
-
-        public IResult Delete(CarImage carImage)
-        {
-            var oldpath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\wwwroot"))
-                + _carImageDal.Get(p => p.Id == carImage.Id).ImagePath;
-            IResult result = BusinessRules.Run(new FileHelper().Delete(oldpath));
-
-            if (result != null)
-            {
-                return result;
             }
 
-            _carImageDal.Delete(carImage);
-            return new SuccessResult(Messages.Deleted);
+
+            //public IResult Update(IFormFile image, CarImage img)
+            //{
+            //    IResult result = BusinessRules.Run(CheckIfImageIsExists(img.Id),
+            //                                   CheckIfFileExtensionValid(image.FileName));
+            //    if (result != null)
+            //    {
+            //        return result;
+            //    }
+            //    var carImg = _carImageDal.Get(x => x.Id == img.Id);
+            //    carImg.Date = DateTime.Now;
+            //    carImg.ImagePath = FileHelper.Add(image);
+            //    FileHelper.Delete(img.ImagePath);
+            //    _carImageDal.Update(carImg);
+            //    return new SuccessResult("Image" + Messages.Updated);
+            //}
+
+            //public IResult Delete(CarImage img)
+            //{
+            //    IResult result = BusinessRules.Run(CheckIfImagePathIsExists(img.ImagePath));
+            //    if (result != null)
+            //    {
+            //        return result;
+            //    }
+
+            //    _carImageDal.Delete(img);
+            //    FileHelper.Delete(img.ImagePath);
+            //    return new SuccessResult("Image" + Messages.Deleted);
+            //}
+
+            //public IDataResult<CarImage> FindByID(int Id)
+            //{
+            //    CarImage img = new CarImage();
+            //    if (_carImageDal.GetAll().Any(x => x.Id == Id))
+            //    {
+            //        img = _carImageDal.GetAll().FirstOrDefault(x => x.Id== Id);
+            //    }
+            //    else Console.WriteLine("No such car image was found.");
+            //    return new SuccessDataResult<CarImage>(img);
+            //}
+
+            //public IDataResult<CarImage> Get(CarImage img)
+            //{
+            //    return new SuccessDataResult<CarImage>(_carImageDal.Get(x => x.Id== img.Id));
+            //}
+
+            //public IDataResult<List<CarImage>> GetAll()
+            //{
+            //    return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll());
+            //}
+
+            //public IResult GetList(List<CarImage> list)
+            //{
+            //    Console.WriteLine("\n------- Car Image List -------");
+
+            //    foreach (var img in list)
+            //    {
+            //        Console.WriteLine("{0}- Car ID: {1}\n    Image Path: {2}\n    Date: {3}\n", img.Id, img.CarId, img.ImagePath, img.Date);
+            //    }
+            //    return new SuccessResult();
+            //}
+
+            //public IDataResult<List<CarImage>> GetCarListByCarID(int carID)
+            //{
+            //    if (!_carImageDal.GetAll().Any(x => x.CarId == carID))
+            //    {
+            //        List<CarImage> img = new List<CarImage>
+            //        {
+            //            new CarImage
+            //            {
+            //                CarId = carID,
+            //                ImagePath = DefaultImage
+            //            }
+            //        };
+            //        return new SuccessDataResult<List<CarImage>>(img);
+            //    }
+            //    return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll(x => x.CarId == carID));
+            //}
+
+            //private IResult CheckIfCarIsExists(int carId)
+            //{
+            //    if (!_carService.GetAll().Data.Any(x => x.CarId == carId))
+            //    {
+            //        return new ErrorResult(Messages.NotFound + "car");
+            //    }
+            //    return new SuccessResult();
+            //}
+
+            //private IResult CheckIfFileExtensionValid(string file)
+            //{
+            //    if (!Regex.IsMatch(file, @"([A-Za-z0-9\-]+)\.(png|PNG|gif|GIF|jpg|JPG|jpeg|JPEG)"))
+            //    {
+            //        return new ErrorResult(Messages.InvalidFileExtension);
+            //    }
+
+            //    return new SuccessResult();
+            //}
+
+            //private IResult CheckIfImagePathIsExists(string path)
+            //{
+            //    if (!_carImageDal.GetAll().Any(x => x.ImagePath == path))
+            //    {
+            //        return new ErrorResult(Messages.NotFound + "image");
+            //    }
+
+            //    return new SuccessResult();
+            //}
+
+            //private IResult CheckIfImageNumberLimitForCar(int carId)
+            //{
+            //    if (_carImageDal.GetAll(x => x.CarId == carId).Count == 5)
+            //    {
+            //        return new ErrorResult(Messages.CarImageLimited);
+            //    }
+            //    return new SuccessResult();
+            //}
+
+            //private IResult CheckIfImageIsExists(int Id)
+            //{
+            //    if (!_carImageDal.GetAll().Any(x => x.Id == Id))
+            //    {
+            //        return new ErrorResult(Messages.NotFound + "image");
+            //    }
+            //    return new SuccessResult();
+            //}
         }
 
-        [ValidationAspect(typeof(CarImageValidator))]
-        public IResult Update(IFormFile file, CarImage carImage)
-        {
-            IResult result = BusinessRules.Run(CheckIfNumberOfPictures(carImage.CarId));
-            if (result != null)
-            {
-                return result;
-            }
-            var oldpath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\wwwroot"))
-                + _carImageDal.Get(p => p.Id == carImage.Id).ImagePath;
-            carImage.ImagePath = new FileHelper().Update(oldpath, file);
-            carImage.Date = DateTime.Now;
-            _carImageDal.Update(carImage);
-            return new SuccessResult(Messages.Updated);
-        }
-
-        public IDataResult<List<CarImage>> GetAll()
-        {
-            return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll(), Messages.Listed);
-        }
-
-        public IDataResult<List<CarImage>> GetImagesByCarId(int carId)
-        {
-            IResult result = BusinessRules.Run(CheckIfThereIsPictureOfCar(carId));
-            if (result != null)
-            {
-                return new ErrorDataResult<List<CarImage>>();
-            }
-            return new SuccessDataResult<List<CarImage>>(CheckIfThereIsPictureOfCar(carId).Data);
-        }
-
-        public IDataResult<List<CarImage>> GetImagesByDate(DateTime date)
-        {
-            return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll(c => c.Date == date));
-        }
-
-        public IDataResult<CarImage> GetById(int id)
-        {
-            return new SuccessDataResult<CarImage>(_carImageDal.Get(c => c.Id == id));
-        }
-
-        private IResult CheckIfNumberOfPictures(int carId)
-        {
-            var result = _carImageDal.GetAll(c => c.CarId == carId).Count;
-            if (result > 5)
-            {
-                return new ErrorResult(Messages.CarImageLimited);
-            }
-            return new SuccessResult();
-        }
-
-        private IDataResult<List<CarImage>> CheckIfThereIsPictureOfCar(int carId)
-        {
-            try
-            {
-                string path = @"\Images\default.png";
-                var result = _carImageDal.GetAll(c => c.CarId == carId).Any();
-                if (!result)
-                {
-                    List<CarImage> carImage = new List<CarImage>();
-                    carImage.Add(new CarImage { CarId = carId, ImagePath = path, Date = DateTime.Now });
-                    return new SuccessDataResult<List<CarImage>>(carImage);
-                }
-            }
-            catch (Exception exception)
-            {
-                return new ErrorDataResult<List<CarImage>>(exception.Message);
-            }
-            return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll(c => c.CarId == carId));
-        }
     }
-}

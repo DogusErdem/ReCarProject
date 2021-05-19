@@ -11,6 +11,8 @@ using Core.Utilities.Results;
 using Business.Constans;
 using Core.Aspects.Autofac.Validation;
 using Business.ValidationRules.FluentValidation;
+using Business.BusinessAspect.Autofac;
+using Core.Aspects.Autofac.Cashing;
 
 namespace Business.Concrete
 {
@@ -35,7 +37,8 @@ namespace Business.Concrete
             _carDal.Delete(car);
             return new SuccessResult(Messages.Deleted);
         }
-
+        [SecurityOperation("admin")]
+        [CacheAspect]
         public IDataResult <List<Car>> GetAll()
         {
             return new SuccessDataResult<List<Car>>(_carDal.GetAll(),Messages.Listed);

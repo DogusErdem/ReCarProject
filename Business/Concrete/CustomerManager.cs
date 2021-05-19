@@ -41,7 +41,7 @@ namespace Business.Concrete
 
         public IDataResult<Customer> GetBydId(int id)
         {
-            return new SuccessDataResult<Customer>(_customerDal.Get(c => c.UserId == id));
+            return new SuccessDataResult<Customer>(_customerDal.Get(c => c.Id == id));
         }
         [ValidationAspect(typeof(CustomerValidator))]
         public IResult Update(Customer customer)
