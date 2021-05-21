@@ -20,7 +20,7 @@ namespace DataAccess.Concrete.EntityFramework
                              from u in context.Users
                              join r in context.Rentals on c.CarId equals r.CarId
                              join b in context.Brands on c.BrandId equals b.BrandId
-                             join cl in context.Colors on c.ColorID equals cl.ColorID
+                             join cl in context.Colors on c.ColorId equals cl.ColorId
                              join uo in context.UserOperationClaims on u.Id equals uo.UserId
 
                              select new RentalDetailsDto
